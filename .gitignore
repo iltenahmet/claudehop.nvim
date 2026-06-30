@@ -1,0 +1,6 @@
+# Neovim help tags generated on install
+doc/tags
+
+# OS / editor cruft
+.DS_Store
+*.swp

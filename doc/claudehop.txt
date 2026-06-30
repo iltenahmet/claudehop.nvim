@@ -1,0 +1,46 @@
+*claudehop.txt*  A three-pane Claude Code panel with clickable references
+
+==============================================================================
+INTRODUCTION                                                       *claudehop*
+
+claudehop.nvim renders a Claude Code session into a normal Neovim buffer where
+every file reference is clickable and can be jumped to with the keyboard.
+
+It drives your own `claude` binary in streaming JSON mode, so skills, slash
+commands, MCP servers, and CLAUDE.md memory all work without configuration.
+
+==============================================================================
+SETUP                                                        *claudehop-setup*
+
+>lua
+    require("claudehop").setup({})
+<
+
+==============================================================================
+COMMANDS                                                  *claudehop-commands*
+
+:ClaudeHop              Toggle the panel.
+:ClaudeHopOpen          Open the panel.
+:ClaudeHopNew           Start a new session.
+:ClaudeHopSend {text}   Send a prompt to the active session.
+
+==============================================================================
+KEYMAPS                                                    *claudehop-keymaps*
+
+In the conversation buffer:
+    <CR>        Jump to the reference under the cursor.
+    f           Label visible references, then jump by key.
+    <Tab>       Move to the next reference.
+    <S-Tab>     Move to the previous reference.
+
+In the prompt box:
+    <CR>        (normal) Send the prompt.
+    <C-s>       (insert) Send the prompt.
+
+In either:
+    <C-n>       New session.
+    <C-l>       Next session.
+    <C-h>       Previous session.
+
+==============================================================================
+vim:tw=78:ts=8:ft=help:norl:
