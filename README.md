@@ -76,6 +76,7 @@ use({
 | `:ClaudeHopOpen` | Open the panel |
 | `:ClaudeHopNew` | Start a new session |
 | `:ClaudeHopSend <text>` | Send a prompt to the active session |
+| `:ClaudeHopLog` | Show the raw process log (what was sent and received) |
 
 Type in the prompt box and press `<CR>` (normal mode) or `<C-s>` (insert mode)
 to send.
@@ -121,6 +122,13 @@ require("claudehop").setup({
   },
 })
 ```
+
+## Troubleshooting
+
+If a prompt produces no reply, run `:ClaudeHopLog`. It shows every line sent to
+the `claude` process and every line received, including errors — which makes it
+easy to see whether the binary started, what it emitted, and whether a line
+failed to decode. Turn the log off with `vim.g.claudehop_debug = false`.
 
 ## Roadmap
 

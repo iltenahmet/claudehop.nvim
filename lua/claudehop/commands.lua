@@ -23,6 +23,10 @@ function M.setup()
     end
   end, { desc = "Start a new claudehop session" })
 
+  vim.api.nvim_create_user_command("ClaudeHopLog", function()
+    require("claudehop.log").open()
+  end, { desc = "Show the raw claudehop process log" })
+
   vim.api.nvim_create_user_command("ClaudeHopSend", function(opts)
     local sess = session.ensure()
     if not ui.is_open() then

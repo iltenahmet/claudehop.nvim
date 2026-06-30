@@ -7,6 +7,7 @@
 -- (skills, slash commands, MCP, memory files) without re-implementing any of it.
 
 local M = {}
+local log = require("claudehop.log")
 
 -- Start a Claude Code process.
 --   cmd, args : the binary and its arguments
@@ -19,6 +20,7 @@ function M.spawn(cmd, args, cwd, on_event, on_exit)
 
   local full = { cmd }
   vim.list_extend(full, args)
+  log.add("info", "spawn: " .. table.concat(full, " ") .. "  (cwd " .. cwd .. ")")
 
   local job = vim.fn.jobstart(full, {
     cwd = cwd,
@@ -38,19 +40,36 @@ function M.spawn(cmd, args, cwd, on_event, on_exit)
         local line = pending:sub(1, nl - 1)
         pending = pending:sub(nl + 1)
         if line ~= "" then
+          log.add("out", line)
           local ok, obj = pcall(vim.json.decode, line)
           if ok and type(obj) == "table" then
             on_event(obj)
+          else
+            log.add("err", "could not decode line above as JSON")
           end
         end
       end
     end,
+    on_stderr = function(_, data)
+      if not data then
+        return
+      end
+      local text = table.concat(data, "\n")
+      if vim.trim(text) ~= "" then
+        log.add("err", text)
+      end
+    end,
     on_exit = function(_, code)
+      log.add("info", "process exited with code " .. tostring(code))
       if on_exit then
         on_exit(code)
       end
     end,
   })
+
+  if job <= 0 then
+    log.add("err", "failed to start '" .. cmd .. "' (is it on your PATH?)")
+  end
 
   return job
 end
@@ -64,7 +83,9 @@ function M.send(job, text)
       content = { { type = "text", text = text } },
     },
   }
-  vim.fn.chansend(job, vim.json.encode(msg) .. "\n")
+  local encoded = vim.json.encode(msg)
+  log.add("in", encoded)
+  vim.fn.chansend(job, encoded .. "\n")
 end
 
 function M.stop(job)
