@@ -61,17 +61,82 @@ local function append_text(session, text)
   end
 end
 
--- Render a tool call (an Edit, Write, Read, etc.). When the tool acts on a
--- file we mark that file path so the user can jump to it.
+-- Turn one input value into a short string for display.
+local function scalar(v)
+  local t = type(v)
+  if t == "string" then
+    return v
+  elseif t == "number" or t == "boolean" then
+    return tostring(v)
+  elseif t == "table" then
+    -- Show small arrays inline (e.g. a list of paths), skip large/nested ones.
+    if vim.islist(v) and #v > 0 and #v <= 6 then
+      local parts = {}
+      for _, item in ipairs(v) do
+        if type(item) == "string" or type(item) == "number" then
+          parts[#parts + 1] = tostring(item)
+        end
+      end
+      if #parts == #v then
+        return table.concat(parts, ", ")
+      end
+    end
+  end
+  return nil
+end
+
+-- Build a short, readable summary of any tool's input by showing its fields as
+-- `key: value`. This works for every tool, including ones added in the future,
+-- so we never keep a per-tool list. The full input is always in the log.
+local function tool_summary(input)
+  local keys = {}
+  for k in pairs(input) do
+    keys[#keys + 1] = k
+  end
+  table.sort(keys)
+
+  local parts = {}
+  for _, k in ipairs(keys) do
+    local s = scalar(input[k])
+    if s and s ~= "" then
+      -- A single field needs no key prefix; several fields are clearer with it.
+      parts[#parts + 1] = { key = k, value = s }
+    end
+  end
+
+  if #parts == 0 then
+    return nil
+  elseif #parts == 1 then
+    return parts[1].value
+  end
+
+  local out = {}
+  for _, p in ipairs(parts) do
+    out[#out + 1] = p.key .. ": " .. p.value
+  end
+  return table.concat(out, "  ·  ")
+end
+
+-- Render a tool call (an Edit, Write, Bash, Grep, ...). When the tool acts on
+-- a file we mark that file path so the user can jump to it. The full input is
+-- always recorded in the log (:ClaudeHopLog).
 local function append_tool(session, block)
   local name = block.name or "tool"
   local input = block.input or {}
   local file = input.file_path or input.path or input.notebook_path
-  local label
-  if file then
-    label = "  ⚙ " .. name .. " " .. file
-  else
-    label = "  ⚙ " .. name
+
+  local summary = tool_summary(input)
+  -- Keep the first line readable; the full text is in the log if it is long.
+  if summary then
+    summary = summary:gsub("\n", " ⏎ ")
+    if #summary > 200 then
+      summary = summary:sub(1, 200) .. " …"
+    end
+  end
+
+  local label = "  ⚙ " .. name
+  if summary then
+    label = label .. "  " .. summary
   end
   local lnum = append(session, { label }, "ClaudehopTool")
 
