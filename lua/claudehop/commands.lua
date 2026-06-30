@@ -23,6 +23,18 @@ function M.setup()
     end
   end, { desc = "Start a new claudehop session" })
 
+  vim.api.nvim_create_user_command("ClaudeHopFocus", function()
+    ui.focus()
+  end, { desc = "Open the panel and focus the prompt box" })
+
+  vim.api.nvim_create_user_command("ClaudeHopNext", function()
+    session.switch(1)
+  end, { desc = "Switch to the next claudehop session" })
+
+  vim.api.nvim_create_user_command("ClaudeHopPrev", function()
+    session.switch(-1)
+  end, { desc = "Switch to the previous claudehop session" })
+
   vim.api.nvim_create_user_command("ClaudeHopLog", function()
     require("claudehop.log").open()
   end, { desc = "Show the raw claudehop process log" })

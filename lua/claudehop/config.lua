@@ -13,6 +13,10 @@ M.defaults = {
   -- Example: { "--permission-mode", "acceptEdits" } to auto-accept edits.
   extra_args = {},
 
+  -- Model to use. The interactive `/model` command does not work in this mode,
+  -- so set the model here instead, e.g. "sonnet" or "opus". nil = the default.
+  model = nil,
+
   -- Ask the engine for partial text events so replies stream in as they are
   -- written instead of arriving all at once.
   include_partial_messages = true,
@@ -31,13 +35,13 @@ M.defaults = {
     hop = "f",            -- label every visible reference, then jump to one by key
 
     -- In the prompt box:
-    submit = "<CR>",      -- normal mode: send the prompt
-    submit_insert = "<C-s>", -- insert mode: send the prompt
+    submit = "<CR>",      -- send the prompt (works in normal and insert mode)
+    newline = "<S-CR>",   -- insert a line break in the prompt (insert mode)
 
-    -- Available in both buffers:
+    -- Available in both panel buffers (normal mode):
     new_session = "<C-n>",
-    next_session = "<C-l>",
-    prev_session = "<C-h>",
+    next_session = "<C-Right>",
+    prev_session = "<C-Left>",
   },
 }
 

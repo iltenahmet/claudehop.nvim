@@ -61,13 +61,14 @@ function M.attach(sess)
       vim.keymap.set(mode, lhs, fn, { buffer = ibuf, nowait = true, silent = true })
     end
   end
-  imap("n", km.submit, function()
-    session.submit(sess)
-  end)
-  imap("i", km.submit_insert, function()
+  local function send()
     vim.cmd("stopinsert")
     session.submit(sess)
-  end)
+  end
+  imap("n", km.submit, send)   -- normal mode: Enter sends
+  imap("i", km.submit, send)   -- insert mode: Enter sends
+  imap("i", "<C-s>", send)     -- alt send, for terminals that cannot tell Shift+Enter apart
+  imap("i", km.newline, "<C-j>") -- insert mode: Shift+Enter inserts a line break
   attach_common(ibuf, sess)
 end
 

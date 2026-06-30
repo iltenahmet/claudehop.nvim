@@ -135,10 +135,13 @@ function M.set_status(session, busy)
   local ui = require("claudehop.ui")
   local win = ui.conv_win
   if win and vim.api.nvim_win_is_valid(win) then
-    vim.wo[win].winbar = "  claudehop  ·  session "
-      .. tostring(session.n)
-      .. "  ·  "
-      .. (busy and "● working…" or "○ idle")
+    local total = #require("claudehop.session").sessions
+    vim.wo[win].winbar = table.concat({
+      "  claudehop",
+      "session " .. tostring(session.n) .. "/" .. tostring(total),
+      (busy and "● working…" or "○ idle"),
+      "C-n new · C-←/→ switch · f hop · ⏎ jump",
+    }, "  ·  ")
   end
 end
 

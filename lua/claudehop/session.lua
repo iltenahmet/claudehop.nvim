@@ -43,6 +43,9 @@ function M.create()
   if cfg.include_partial_messages then
     table.insert(args, "--include-partial-messages")
   end
+  if cfg.model then
+    vim.list_extend(args, { "--model", cfg.model })
+  end
   vim.list_extend(args, cfg.extra_args or {})
 
   local render = require("claudehop.render")

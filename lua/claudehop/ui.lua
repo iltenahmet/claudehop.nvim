@@ -53,7 +53,8 @@ local function set_win_opts(win, conversation)
   vim.wo[win].relativenumber = false
   vim.wo[win].signcolumn = "no"
   vim.wo[win].winfixwidth = true
-  vim.wo[win].wrap = conversation
+  vim.wo[win].wrap = true      -- wrap long lines in both the chat and the prompt box
+  vim.wo[win].linebreak = true -- wrap at word boundaries, not mid-word
   vim.wo[win].cursorline = conversation
 end
 
@@ -107,6 +108,16 @@ function M.toggle()
     M.close()
   else
     M.open()
+  end
+end
+
+-- Open the panel if needed and put the cursor in the prompt box. Unlike
+-- toggle, this never closes the panel — use it to jump back from the editor.
+function M.focus()
+  if not M.is_open() then
+    M.open()
+  else
+    vim.api.nvim_set_current_win(M.input_win)
   end
 end
 
